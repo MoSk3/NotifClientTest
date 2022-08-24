@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IoTCourse-5D7 - Démonstrations IoT</title>
+    <!-- Progress bar taken from: https://dev.to/shantanu_jana/circular-progress-bar-using-html-and-css-1oda -->
+    <style>
+      @import url(http://fonts.googleapis.com/css?family=Roboto:400,700,300);
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: white;
+      }
+
+      .circle-wrap {
+        margin: 150px auto;
+        width: 150px;
+        height: 150px;
+        background: white;
+        border-radius: 50%;
+        border: 1px solid #cdcbd0;
+      }
+
+      .circle-wrap .circle .mask,
+      .circle-wrap .circle .fill {
+        width: 150px;
+        height: 150px;
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      .circle-wrap .circle .mask {
+        clip: rect(0px, 150px, 150px, 75px);
+      }
+
+      .circle-wrap .inside-circle {
+        width: 122px;
+        height: 122px;
+        border-radius: 50%;
+        background: rgb(186, 211, 255);
+        line-height: 120px;
+        text-align: center;
+        margin-top: 14px;
+        margin-left: 14px;
+        color: #1e51dc;
+        position: absolute;
+        z-index: 100;
+        font-weight: 700;
+        font-size: 2em;
+      }
+
+      /* color animation */
+
+      /* 3rd progress bar */
+      .mask .fill {
+        clip: rect(0px, 75px, 150px, 0px);
+        background-color: #227ded;
+      }
+
+      .rotating-part {
+        animation: fill ease-in-out 3s;
+        transform: rotate(0deg);
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="sendNotification()">Click me</button>
+
+    <div class="circle-wrap">
+      <div class="circle">
+        <div class="mask full rotating-part">
+          <div class="fill rotating-part"></div>
+        </div>
+        <div class="mask half">
+          <div class="fill rotating-part"></div>
+        </div>
+        <div class="inside-circle" id="label">0%</div>
+      </div>
+    </div>
+
+    <script
+      type="text/javascript"
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+    ></script>
+    <script>
+      const socket = new WebSocket(
+        "ws://" + window.location.host + "/usergateway"
+      );
+
+      socket.onmessage = function (e) {
+        console.log("RECEIVED SENSOR DATA : ");
+        const val = Number(e.data);
+        console.log(val);
+        if (!isNaN(val) && val != null) setProgressValue(val);
+      };
+
+      socket.onclose = function (e) {
+        console.error("Chat socket closed unexpectedly");
+      };
+
+      socket.onopen = (e) => {
+        console.log("Connected user");
+
+        // setTimeout(() => {
+        //   console.log("SENDING PING...");
+        //   socket.send("notif");
+        // }, 1000);
+      };
+
+      const socket2 = new WebSocket(
+        "ws://" + window.location.host + "/iotgateway"
+      );
+
+      socket2.onmessage = function (e) {
+        console.log("RECEIVED PING");
+      };
+
+      socket2.onclose = function (e) {
+        console.error("Chat socket closed unexpectedly");
+      };
+
+      socket2.onopen = (e) => {
+        console.log("Connected iot device");
+        setTimeout(() => {
+          console.log("SENDING SENSOR DATA...");
+          socket2.send(30);
+        }, 1000);
+      };
+
+      var progressVal = 0;
+      function setProgressValue(val) {
+        progressVal = Math.min(100, val);
+        $(".rotating-part").css({
+          transform: `rotate(${(progressVal / 100) * 180}deg)`,
+        });
+        $("#label").text(`${progressVal}%`);
+      }
+
+      function sendNotification() {
+        socket.send("notif");
+        // $.ajax({
+        //   type: "POST",
+        //   url: "send_notif",
+        //   contentType: "application/json; charset=utf-8",
+        //   dataType: "json",
+        //   success: function (result) {
+        //     alert(result.d);
+        //     console.log(result);
+        //   },
+        // });
+      }
+    </script>
+  </body>
+</html>

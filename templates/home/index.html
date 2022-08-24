@@ -109,25 +109,25 @@
         // }, 1000);
       };
 
-      const socket2 = new WebSocket(
+      /*const test_iotdevice = new WebSocket(
         "ws://" + window.location.host + "/iotgateway"
       );
 
-      socket2.onmessage = function (e) {
+      test_iotdevice.onmessage = function (e) {
         console.log("RECEIVED PING");
       };
 
-      socket2.onclose = function (e) {
+      test_iotdevice.onclose = function (e) {
         console.error("Chat socket closed unexpectedly");
       };
 
-      socket2.onopen = (e) => {
+      test_iotdevice.onopen = (e) => {
         console.log("Connected iot device");
         setTimeout(() => {
           console.log("SENDING SENSOR DATA...");
-          socket2.send(30);
+          test_iotdevice.send(30);
         }, 1000);
-      };
+      };*/
 
       var progressVal = 0;
       function setProgressValue(val) {
